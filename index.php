@@ -163,10 +163,12 @@
         var trial_counter = 1;
 
         var tmp_used = []; // update every 2 trials
+        var tmp_used_controls = []; // update every 2 trials
 
         for(var i = 1; i <= BLOCK_LENGTH; i++) {
             living_draw = jsPsych.randomization.sampleWithoutReplacement(LIVING, 2);
             nonliving_draw = jsPsych.randomization.sampleWithoutReplacement(NONLIVING, 2);
+            control_draw = jsPsych.randomization.sampleWithoutReplacement(CONTROL, 4);
 
             if(i > 1) {
                 if(i == 2) {
@@ -180,6 +182,12 @@
                             nonliving_draw = jsPsych.randomization.sampleWithoutReplacement(NONLIVING, 2);
                         }
                     }
+                    if((tmp_used_controls.includes(control_draw[0]) || tmp_used_controls.includes(control_draw[1]) || tmp_used_controls.includes(control_draw[2]) || tmp_used_controls.includes(control_draw[3]))) {
+                        while((tmp_used_controls.includes(control_draw[0]) || tmp_used_controls.includes(control_draw[1]) || tmp_used_controls.includes(control_draw[2]) || tmp_used_controls.includes(control_draw[3]))) {
+                            console.log("redraw control, i==2");
+                            control_draw = jsPsych.randomization.sampleWithoutReplacement(CONTROL, 4);
+                        }
+                    }
                 } else if(i > 2) {
                     if((living_draw[0] == tmp_used[0] || living_draw[0] == tmp_used[1] || living_draw[0] == tmp_used[4] || living_draw[0] == tmp_used[5] || living_draw[1] == tmp_used[0] || living_draw[1] == tmp_used[1] || living_draw[1] == tmp_used[4] || living_draw[1] == tmp_used[5])) {
                         while((living_draw[0] == tmp_used[0] || living_draw[0] == tmp_used[1] || living_draw[0] == tmp_used[4] || living_draw[0] == tmp_used[5] || living_draw[1] == tmp_used[0] || living_draw[1] == tmp_used[1] || living_draw[1] == tmp_used[4] || living_draw[1] == tmp_used[5])) {
@@ -189,6 +197,12 @@
                     if((nonliving_draw[0] == tmp_used[2] || nonliving_draw[0] == tmp_used[3] || nonliving_draw[0] == tmp_used[6] || nonliving_draw[0] == tmp_used[7] || nonliving_draw[1] == tmp_used[2] || nonliving_draw[1] == tmp_used[3] || nonliving_draw[1] == tmp_used[6] || nonliving_draw[1] == tmp_used[7])) {
                         while((nonliving_draw[0] == tmp_used[2] || nonliving_draw[0] == tmp_used[3] || nonliving_draw[0] == tmp_used[6] || nonliving_draw[0] == tmp_used[7] || nonliving_draw[1] == tmp_used[2] || nonliving_draw[1] == tmp_used[3] || nonliving_draw[1] == tmp_used[6] || nonliving_draw[1] == tmp_used[7])) {
                             nonliving_draw = jsPsych.randomization.sampleWithoutReplacement(NONLIVING, 2);
+                        }
+                    }
+                    if((tmp_used_controls.includes(control_draw[0]) || tmp_used_controls.includes(control_draw[1]) || tmp_used_controls.includes(control_draw[2]) || tmp_used_controls.includes(control_draw[3]))) {
+                        while((tmp_used_controls.includes(control_draw[0]) || tmp_used_controls.includes(control_draw[1]) || tmp_used_controls.includes(control_draw[2]) || tmp_used_controls.includes(control_draw[3]))) {
+                            console.log("redraw control, i > 2");
+                            control_draw = jsPsych.randomization.sampleWithoutReplacement(CONTROL, 4);
                         }
                     }
                 }
@@ -258,7 +272,7 @@
                 });
             } else if(cue_shuffled[i] == 1) {
                 trials.push({ // 1. MEMORY SET (4500 ms)
-                    stimulus: "<table class='wordgrid'><col width='200px' /><col width='50px' /><col width='200px' /><tr><td><div class='colbl'>"+living_draw[0]+"</div></td><td></td><td><div class='colrd'>"+nonliving_draw[0]+"</div></td></tr><tr><td><div style='margin-bottom:80px;'>&nbsp;</div></td><td><div style='font-size:60px;'>+</div></td><td></td></tr><tr><td><div class='colrd'>"+nonliving_draw[1]+"</div></td><td></td><td><div class='colbl'>"+living_draw[1]+"</div></td></tr></table>", data: { 'blue_word_1' : living_draw[0], 'blue_word_2' : living_draw[1], 'red_word_1' : nonliving_draw[0], 'red_word_2' : nonliving_draw[1], 'list' : trial_counter, 'trial_desc' : 'MemorySet' }, choices: jsPsych.NO_KEYS, trial_duration: 4500
+                    stimulus: "<table class='wordgrid'><col width='200px' /><col width='50px' /><col width='200px' /><tr><td><div class='colbl'>"+control_draw[0]+"</div></td><td></td><td><div class='colrd'>"+control_draw[1]+"</div></td></tr><tr><td><div style='margin-bottom:80px;'>&nbsp;</div></td><td><div style='font-size:60px;'>+</div></td><td></td></tr><tr><td><div class='colrd'>"+control_draw[2]+"</div></td><td></td><td><div class='colbl'>"+control_draw[3]+"</div></td></tr></table>", data: { 'blue_word_1' : control_draw[0], 'blue_word_2' : control_draw[2], 'red_word_1' : control_draw[1], 'red_word_2' : control_draw[3], 'list' : trial_counter, 'trial_desc' : 'MemorySet' }, choices: jsPsych.NO_KEYS, trial_duration: 4500
                 });
             }
 
@@ -266,11 +280,11 @@
 
             // 3. INSTRUCTION CUE (1000 ms)
             if(cue_shuffled[i] == 0) { //ANIMATION
-                if(cue_instruction_shuffled[i] == 0) { //animate
+                if(cue_instruction_shuffled[i] == 0) { //living
                     trials.push({
                         stimulus: '<h1>REMEMBER LIVING</h1>', data: { 'cue_type' : 'Remember', 'cue_value' : "Animate", 'list' : trial_counter, 'trial_desc' : 'InstructionCue' }, choices: jsPsych.NO_KEYS, trial_duration: 1000
                     });
-                } else if(cue_instruction_shuffled[i] == 1) { //inanimate
+                } else if(cue_instruction_shuffled[i] == 1) { //non-living
                     trials.push({
                         stimulus: '<h1>REMEMBER NON-LIVING</h1>', data: { 'cue_type' : 'Remember', 'cue_value' : 'Inanimate', 'list' : trial_counter, 'trial_desc' : 'InstructionCue' }, choices: jsPsych.NO_KEYS, trial_duration: 1000
                     });
@@ -311,6 +325,15 @@
                 tmp_used.shift();
                 tmp_used.shift();
                 tmp_used.shift();
+            }
+
+            tmp_used_controls.push(control_draw[0], control_draw[1], control_draw[2], control_draw[3]);
+            console.log(tmp_used_controls);
+            if((i >= 3)) {
+                tmp_used_controls.shift();
+                tmp_used_controls.shift();
+                tmp_used_controls.shift();
+                tmp_used_controls.shift();
             }
 
             trial_counter++;
