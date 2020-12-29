@@ -73,7 +73,30 @@
                 ],
             post_trial_gap: 2000,
             show_clickable_nav: true,
-            allow_keys: false
+            allow_keys: false,
+            data: {
+                'trial_desc' : 'Instructions'
+            }
+        }
+
+        var fixation_pre = {
+            type: 'html-keyboard-response',
+            stimulus: '<div style="font-size:60px;">+</div>',
+            choices: jsPsych.NO_KEYS,
+            trial_duration: 1000,
+            data: {
+                'trial_desc' : 'Pre-Fixation'
+            }
+        }
+
+        var fixation_post = {
+            type: 'html-keyboard-response',
+            stimulus: '<div style="font-size:60px;">+</div>',
+            choices: jsPsych.NO_KEYS,
+            trial_duration: 3000,
+            data: {
+                'trial_desc' : 'Post-Fixation'
+            }
         }
 
         // BUILD PROBE DISTRIBUTION
@@ -118,10 +141,222 @@
             }
         }
 
+        // BUILD LIVING/NON-LIVING -- BLUE/RED CUES
+        var cue = [];
+        for(var i = 0; i < BLOCK_LENGTH; i++) {
+            cue.push(jsPsych.randomization.sampleWithoutReplacement([0,1], 1));
+        }
+        var cue_shuffled = jsPsych.randomization.sampleWithoutReplacement(cue, cue.length);
+
+        var cue_instruction = [];
+        for(var i = 0; i < BLOCK_LENGTH; i++) {
+            cue_instruction.push(0); // living OR blue
+            cue_instruction.push(1); // non-living OR red
+        }
+        var cue_instruction_shuffled = jsPsych.randomization.sampleWithoutReplacement(cue_instruction, cue_instruction.length);
+
+        var probe = jsPsych.randomization.sampleWithoutReplacement([0,1,2],1);
+
         // BUILD EXPERIMENT
         var trials = [];
         var subject_id = jsPsych.randomization.randomID(15); // generate a random subject ID
         var trial_counter = 1;
+
+        var tmp_used = []; // update every 2 trials
+
+        for(var i = 1; i <= BLOCK_LENGTH; i++) {
+            living_draw = jsPsych.randomization.sampleWithoutReplacement(LIVING, 2);
+            nonliving_draw = jsPsych.randomization.sampleWithoutReplacement(NONLIVING, 2);
+
+            if(i > 1) {
+                if(i == 2) {
+                    if((living_draw[0] == tmp_used[0] || living_draw[0] == tmp_used[1] || living_draw[1] == tmp_used[0] || living_draw[1] == tmp_used[1])) {
+                        while((living_draw[0] == tmp_used[0] || living_draw[0] == tmp_used[1] || living_draw[1] == tmp_used[0] || living_draw[1] == tmp_used[1])) {
+                            living_draw = jsPsych.randomization.sampleWithoutReplacement(LIVING, 2);
+                        }
+                    }
+                    if((nonliving_draw[0] == tmp_used[0] || nonliving_draw[0] == tmp_used[1] || nonliving_draw[1] == tmp_used[0] || nonliving_draw[1] == tmp_used[1])) {
+                        while((nonliving_draw[0] == tmp_used[0] || nonliving_draw[0] == tmp_used[1] || nonliving_draw[1] == tmp_used[0] || nonliving_draw[1] == tmp_used[1])) {
+                            nonliving_draw = jsPsych.randomization.sampleWithoutReplacement(NONLIVING, 2);
+                        }
+                    }
+                } else if(i > 2) {
+                    if((living_draw[0] == tmp_used[0] || living_draw[0] == tmp_used[1] || living_draw[0] == tmp_used[4] || living_draw[0] == tmp_used[5] || living_draw[1] == tmp_used[0] || living_draw[1] == tmp_used[1] || living_draw[1] == tmp_used[4] || living_draw[1] == tmp_used[5])) {
+                        while((living_draw[0] == tmp_used[0] || living_draw[0] == tmp_used[1] || living_draw[0] == tmp_used[4] || living_draw[0] == tmp_used[5] || living_draw[1] == tmp_used[0] || living_draw[1] == tmp_used[1] || living_draw[1] == tmp_used[4] || living_draw[1] == tmp_used[5])) {
+                            living_draw = jsPsych.randomization.sampleWithoutReplacement(LIVING, 2);
+                        }
+                    }
+                    if((nonliving_draw[0] == tmp_used[2] || nonliving_draw[0] == tmp_used[3] || nonliving_draw[0] == tmp_used[6] || nonliving_draw[0] == tmp_used[7] || nonliving_draw[1] == tmp_used[2] || nonliving_draw[1] == tmp_used[3] || nonliving_draw[1] == tmp_used[6] || nonliving_draw[1] == tmp_used[7])) {
+                        while((nonliving_draw[0] == tmp_used[2] || nonliving_draw[0] == tmp_used[3] || nonliving_draw[0] == tmp_used[6] || nonliving_draw[0] == tmp_used[7] || nonliving_draw[1] == tmp_used[2] || nonliving_draw[1] == tmp_used[3] || nonliving_draw[1] == tmp_used[6] || nonliving_draw[1] == tmp_used[7])) {
+                            nonliving_draw = jsPsych.randomization.sampleWithoutReplacement(NONLIVING, 2);
+                        }
+                    }
+                }
+            }
+
+            living_draw.push(nonliving_draw);
+            draw_combo = living_draw;
+
+            var probe_words = [];
+            for(var jj = 0; jj < probe_list.length; jj++) {
+                if(cue_shuffled[jj] == 0) { // 0 => LIVING; 1 => COLOR
+                    if(cue_instruction_shuffled[jj] == 0) { // 0 => //LIVING OR BLUE; 1 => //NONLIVING OR RED;
+                        if(probe_list[jj] == 0) { //valid
+                            rnd_draw = jsPsych.randomization.sampleWithoutReplacement([0,1], 1);
+                            probe_words.push(living_draw[rnd_draw]);
+                        } else if(probe_list[jj] == 1) { //lure
+                            rnd_draw = jsPsych.randomization.sampleWithoutReplacement([0,1], 1);
+                            probe_words.push(nonliving_draw[rnd_draw]);
+                        } else if(probe_list[jj] == 2) { //control
+                            rnd_draw = jsPsych.randomization.sampleWithoutReplacement(CONTROL, 1);
+                            probe_words.push(rnd_draw);
+                        }
+                    }
+                    else if(cue_instruction_shuffled[jj] == 1) { // 0 => //animate OR BLUE; 1 => //inanimate OR RED;
+                        if(probe_list[jj] == 0) { //valid
+                            rnd_draw = jsPsych.randomization.sampleWithoutReplacement([0,1], 1);
+                            probe_words.push(nonliving_draw[rnd_draw]);
+                        } else if(probe_list[jj] == 1) { //lure
+                            rnd_draw = jsPsych.randomization.sampleWithoutReplacement([0,1], 1);
+                            probe_words.push(living_draw[rnd_draw]);
+                        } else if(probe_list[jj] == 2) { //control
+                            rnd_draw = jsPsych.randomization.sampleWithoutReplacement(CONTROL, 1);
+                            probe_words.push(rnd_draw);
+                        }
+                    }   
+                } else if(cue_shuffled[jj] == 1) { // 0 => ANIMATION; 1 => COLOR
+                    if(cue_instruction_shuffled[jj] == 0) { // 0 => //animate OR BLUE; 1 => //inanimate OR RED;
+                        if(probe_list[jj] == 0) { //valid
+                            rnd_draw = jsPsych.randomization.sampleWithoutReplacement([0,1], 1);
+                            probe_words.push(living_draw[rnd_draw]);
+                        } else if(probe_list[jj] == 1) { //lure
+                            rnd_draw = jsPsych.randomization.sampleWithoutReplacement([0,1], 1);
+                            probe_words.push(nonliving_draw[rnd_draw]);
+                        } else if(probe_list[jj] == 2) { //control
+                            rnd_draw = jsPsych.randomization.sampleWithoutReplacement(CONTROL, 1);
+                            probe_words.push(rnd_draw);
+                        }
+                    }
+                    else if(cue_instruction_shuffled[jj] == 1) { // 0 => //animate OR BLUE; 1 => //inanimate OR RED;
+                        if(probe_list[jj] == 0) { //valid
+                            rnd_draw = jsPsych.randomization.sampleWithoutReplacement([0,1], 1);
+                            probe_words.push(nonliving_draw[rnd_draw]);
+                        } else if(probe_list[jj] == 1) { //lure
+                            rnd_draw = jsPsych.randomization.sampleWithoutReplacement([0,1], 1);
+                            probe_words.push(living_draw[rnd_draw]);
+                        } else if(probe_list[jj] == 2) { //control
+                            rnd_draw = jsPsych.randomization.sampleWithoutReplacement(CONTROL, 1);
+                            probe_words.push(rnd_draw);
+                        }
+                    }   
+                }
+            }
+
+            if(cue_shuffled[i] == 0) {
+                trials.push({ // 1. MEMORY SET (4500 ms)
+                    stimulus: "<table class='wordgrid'><col width='200px' /><col width='50px' /><col width='200px' /><tr><td><div class='black'>"+living_draw[0]+"</div></td><td></td><td><div class='black'>"+nonliving_draw[0]+"</div></td></tr><tr><td><div style='margin-bottom:80px;'>&nbsp;</div></td><td><div style='font-size:60px;'>+</div></td><td></td></tr><tr><td><div class='black'>"+nonliving_draw[1]+"</div></td><td></td><td><div class='black'>"+living_draw[1]+"</div></td></tr></table>", data: { 'animate_word_1' : living_draw[0], 'animate_word_2' : living_draw[1], 'inanimate_word_1' : nonliving_draw[0], 'inanimate_word_2' : nonliving_draw[1], 'list' : trial_counter, 'trial_desc' : 'MemorySet' }, choices: jsPsych.NO_KEYS, trial_duration: 4500
+                });
+            } else if(cue_shuffled[i] == 1) {
+                trials.push({ // 1. MEMORY SET (4500 ms)
+                    stimulus: "<table class='wordgrid'><col width='200px' /><col width='50px' /><col width='200px' /><tr><td><div class='colbl'>"+living_draw[0]+"</div></td><td></td><td><div class='colrd'>"+nonliving_draw[0]+"</div></td></tr><tr><td><div style='margin-bottom:80px;'>&nbsp;</div></td><td><div style='font-size:60px;'>+</div></td><td></td></tr><tr><td><div class='colrd'>"+nonliving_draw[1]+"</div></td><td></td><td><div class='colbl'>"+living_draw[1]+"</div></td></tr></table>", data: { 'blue_word_1' : living_draw[0], 'blue_word_2' : living_draw[1], 'red_word_1' : nonliving_draw[0], 'red_word_2' : nonliving_draw[1], 'list' : trial_counter, 'trial_desc' : 'MemorySet' }, choices: jsPsych.NO_KEYS, trial_duration: 4500
+                });
+            }
+
+            trials.push(fixation_pre); // 2. FIXATION (1000 ms)
+
+            // 3. INSTRUCTION CUE (1000 ms)
+            if(cue_shuffled[i] == 0) { //ANIMATION
+                if(cue_instruction_shuffled[i] == 0) { //animate
+                    trials.push({
+                        stimulus: '<h1>REMEMBER LIVING</h1>', data: { 'cue_type' : 'Remember', 'cue_value' : "Animate", 'list' : trial_counter, 'trial_desc' : 'InstructionCue' }, choices: jsPsych.NO_KEYS, trial_duration: 1000
+                    });
+                } else if(cue_instruction_shuffled[i] == 1) { //inanimate
+                    trials.push({
+                        stimulus: '<h1>REMEMBER NON-LIVING</h1>', data: { 'cue_type' : 'Remember', 'cue_value' : 'Inanimate', 'list' : trial_counter, 'trial_desc' : 'InstructionCue' }, choices: jsPsych.NO_KEYS, trial_duration: 1000
+                    });
+                }
+            } else if(cue_shuffled[i] == 1) { //COLORS
+                if(cue_instruction_shuffled[i] == 0) { //blue
+                    trials.push({
+                        stimulus: '<h1>REMEMBER BLUE</h1>', data: { 'cue_type' : 'Remember', 'cue_value' : 'Blue', 'list' : trial_counter, 'trial_desc' : 'InstructionCue' }, choices: jsPsych.NO_KEYS, trial_duration: 1000
+                    });
+                } else if(cue_instruction_shuffled[i] == 1) { //red
+                    trials.push({
+                        stimulus: '<h1>REMEMBER RED</h1>', data: { 'cue_type' : 'Remember', 'cue_value' : 'Red', 'list' : trial_counter, 'trial_desc' : 'InstructionCue' }, choices: jsPsych.NO_KEYS, trial_duration: 1000
+                    });
+                }
+            }
+            
+            trials.push(fixation_post); // 4. FIXATION (3000 ms)
+
+            // 5. PROBE
+            if(probe_list[i] == 0) { // VALID (40% freq.)
+                trials.push({
+                    stimulus: "<h1>" + probe_words[i] + "</h1>", data: { 'probe_type' : 'Valid', 'probe_value' :  probe_words[i]}, choices: [89, 78], data: { 'list' : trial_counter, 'trial_desc' : 'Probe' }, on_finish: function(data){if(data.key_press == 89){data.correct = true;}else{data.correct = false;}}
+                });
+            } else if (probe_list[i] == 1) { // LURE (30% freq.)
+                trials.push({
+                    stimulus: "<h1>" + probe_words[i] + "</h1>", data: { 'probe_type' : 'Lure', 'probe_value' : probe_words[i] }, choices: [89, 78], data: { 'list' : trial_counter, 'trial_desc' : 'Probe' }, on_finish: function(data){if(data.key_press == 78){data.correct = true;}else{data.correct = false;}}
+                });
+            } else if (probe_list[i] == 2) { // CONTROL (30% freq.)
+                trials.push({
+                    stimulus: "<h1>" + probe_words[i] + "</h1>", data: { 'probe_type' : 'Control', 'probe_value' : probe_words[i] }, choices: [89, 78], data: { 'list' : trial_counter, 'trial_desc' : 'Probe' }, on_finish: function(data){if(data.key_press == 78){data.correct = true;}else{data.correct = false;}}
+                });
+            }
+
+            // Reset 2-back check for repeated draws
+            tmp_used.push(living_draw[0], living_draw[1], nonliving_draw[0], nonliving_draw[1]);
+            if ((i >= 3)) {
+                tmp_used.shift();
+                tmp_used.shift();
+                tmp_used.shift();
+                tmp_used.shift();
+            }
+
+            trial_counter++;
+        }
+
+        var block = {
+            type: 'html-keyboard-response',
+            choice: jsPsych.NO_KEYS,
+            on_finish: function(data) {
+                if(data.key_press == 78) {
+                    jsPsych.endCurrentTimeline();
+                }
+            },
+            timeline: trials
+        }
+
+        var after_block = {
+            type: 'html-keyboard-response',
+            stimulus: '<p>Done..this is where I will save the data....<strong>Press <em>spacebar</em> to write data to server.</strong></p>',
+            is_html: true
+        }
+
+        jsPsych.data.addProperties({
+            sessionID: subject_id,
+            conditionID: condition_assignment
+        });
+
+        var file_pattern = condition_assignment + "_" + subject_id + "_" + "dataoutput";
+
+        function saveData(filename, filedata) {
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', 'save_data.php'); // 'write_data.php' is the path to the php file described above.
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.send(JSON.stringify({filename: file_pattern, filedata: filedata}));        
+        };
+
+        jsPsych.init({
+            timeline: [block, after_block],
+            on_finish: function() {
+                jsPsych.data.displayData();
+                var all_data = jsPsych.data.get();
+                console.log(all_data.csv());
+                saveData(file_pattern, all_data.csv());
+                console.log("Data saved at: " + file_pattern);
+            }
+        });
         
     </script>
 </html>
