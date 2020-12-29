@@ -333,6 +333,8 @@
             is_html: true
         }
 
+        var condition_assignment = "suppress";
+
         jsPsych.data.addProperties({
             sessionID: subject_id,
             conditionID: condition_assignment
@@ -342,7 +344,7 @@
 
         function saveData(filename, filedata) {
             var xhr = new XMLHttpRequest();
-            xhr.open('POST', 'save_data.php'); // 'write_data.php' is the path to the php file described above.
+            xhr.open('POST', 'save_data.php');
             xhr.setRequestHeader('Content-Type', 'application/json');
             xhr.send(JSON.stringify({filename: file_pattern, filedata: filedata}));        
         };
