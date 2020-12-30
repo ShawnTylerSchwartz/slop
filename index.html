@@ -66,6 +66,17 @@
         var aid = jsPsych.data.getURLVariable('aid');
         console.log('aid: ' + aid);
 
+        var subject_id = jsPsych.randomization.randomID(15); // generate a random subject ID
+
+        var trials = [];
+        var trial_counter = 1;
+
+        // Prompt user to enter fullscreen mode
+        trials.push({
+            type: 'fullscreen',
+            fullscreen_mode: true
+        });
+
         // TRIAL BLOCKS
         var instructions_suppress = {
             type: 'instructions',
@@ -104,16 +115,6 @@
                 'trial_desc' : 'Post-Fixation'
             }
         }
-        
-        var trials = [];
-        var subject_id = jsPsych.randomization.randomID(15); // generate a random subject ID
-        var trial_counter = 1;
-
-        // Prompt user to enter fullscreen mode
-        trials.push({
-            type: 'fullscreen',
-            fullscreen_mode: true
-        });
 
         for(var block_itr = 0; block_itr < BLOCKS; block_itr++) {
             console.log("Block: " + block_itr+1);
