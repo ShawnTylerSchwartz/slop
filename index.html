@@ -62,6 +62,9 @@
         
         var words_per_trial = CONTROL.length / (BLOCK_LENGTH - 1);
 
+        var aid = jsPsych.data.getURLVariable('aid');
+        console.log('aid: ' + aid);
+
         // TRIAL BLOCKS
         var instructions_suppress = {
             type: 'instructions',
