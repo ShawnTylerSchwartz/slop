@@ -7,6 +7,7 @@
         <script src="jsPsych/plugins/jspsych-html-button-response.js"></script>
         <script src="jsPsych/plugins/jspsych-html-keyboard-response.js"></script>
         <script src="jsPsych/plugins/jspsych-instructions.js"></script>
+        <script src="jsPsych/plugins/jspsych-fullscreen.js"></script>
         <link rel="stylesheet" href="jsPsych/css/jspsych.css">
         <style>
             img {
@@ -107,6 +108,12 @@
         var trials = [];
         var subject_id = jsPsych.randomization.randomID(15); // generate a random subject ID
         var trial_counter = 1;
+
+        // Prompt user to enter fullscreen mode
+        trials.push({
+            type: 'fullscreen',
+            fullscreen_mode: true
+        });
 
         for(var block_itr = 0; block_itr < BLOCKS; block_itr++) {
             console.log("Block: " + block_itr+1);
@@ -369,8 +376,14 @@
 
         var after_block = {
             type: 'html-keyboard-response',
-            stimulus: '<p>Done..this is where I will save the data....<strong>Press <em>spacebar</em> to write data to server.</strong></p>',
+            stimulus: 'Thank you for participating. Please press <strong>spacebar</strong> to exit fullscreen mode and to end the experiment.',
             is_html: true
+        }
+
+        // Force browser to exit fullscreen mode
+        var exit_fullscreen = {
+            type: 'fullscreen',
+            fullscreen_mode: false
         }
 
         var condition_assignment = "suppress";
@@ -392,7 +405,7 @@
         };
 
         jsPsych.init({
-            timeline: [block, after_block],
+            timeline: [block, after_block, exit_fullscreen],
             on_finish: function() {
                 jsPsych.data.displayData();
                 
