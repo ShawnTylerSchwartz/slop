@@ -377,26 +377,34 @@
 
         jsPsych.data.addProperties({
             sessionID: subject_id,
+            aID: aid,
             conditionID: condition_assignment
         });
 
-        var file_pattern = condition_assignment + "_" + subject_id + "_" + "dataoutput";
+        var file_pattern_data = condition_assignment + "_" + subject_id + "_" + aid + "_data";
+        var file_pattern_focus = condition_assignment + "_" + subject_id + "_" + aid + "_focus";
 
         function saveData(filename, filedata) {
             var xhr = new XMLHttpRequest();
             xhr.open('POST', 'save_data.php');
             xhr.setRequestHeader('Content-Type', 'application/json');
-            xhr.send(JSON.stringify({filename: file_pattern, filedata: filedata}));        
+            xhr.send(JSON.stringify({filename: filename, filedata: filedata}));        
         };
 
         jsPsych.init({
             timeline: [block, after_block],
             on_finish: function() {
                 jsPsych.data.displayData();
+                
                 var all_data = jsPsych.data.get();
                 console.log(all_data.csv());
-                saveData(file_pattern, all_data.csv());
-                console.log("Data saved at: " + file_pattern);
+                saveData(file_pattern_data, all_data.csv());
+                console.log("Data saved at: " + file_pattern_data);
+                
+                var interaction_data = jsPsych.data.getInteractionData();
+                console.log(interaction_data.csv());
+                saveData(file_pattern_focus, interaction_data.csv());
+                console.log("Data saved at: " + file_pattern_focus);
             }
         });
         
