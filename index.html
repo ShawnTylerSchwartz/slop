@@ -96,6 +96,20 @@
                 'trial_desc' : 'Instructions'
             }
         }
+        trials.push(instructions_suppress);
+
+        var instructions_suppress_post_prac = {
+            type: 'instructions',
+            pages: [
+                '<p>Practice is over and now you will start the task.</p><p>When you are ready to begin, press the <u>Next ></u> button below.</p>'
+            ],
+            post_trial_gap: 2000,
+            show_clickable_nav: true,
+            allow_keys: false,
+            data: {
+                'trial_desc' : 'Instructions'
+            }
+        }
 
         var fixation_pre = {
             type: 'html-keyboard-response',
@@ -172,7 +186,7 @@
 
             // 6. FEEDBACK
             trials.push({
-                type: 'html-keyboard-response', stimulus: function(){ var last_trial_correct = jsPsych.data.get().last(1).values()[0].correct; if(last_trial_correct){ return "<h1 style='color: green;'>Correct</h1>"; } else{ return "<h1 style='color: red;'>Incorrect</h1>" } }
+                type: 'html-keyboard-response', trial_duration: 3000, choices: jsPsych.NO_KEYS, stimulus: function(){ var last_trial_correct = jsPsych.data.get().last(1).values()[0].correct; if(last_trial_correct){ return "<h1 style='color: green;'>Correct</h1>"; } else{ return "<h1 style='color: red;'>Incorrect</h1>" } }
             });
 
             console.log("NUMBER TRIES CORRECT: " + living_prac_corr);
@@ -231,7 +245,7 @@
 
             // 6. FEEDBACK
             trials.push({
-                type: 'html-keyboard-response', stimulus: function(){ var last_trial_correct = jsPsych.data.get().last(1).values()[0].correct; if(last_trial_correct){ return "<h1 style='color: green;'>Correct</h1>"; } else{ return "<h1 style='color: red;'>Incorrect</h1>" } }
+                type: 'html-keyboard-response', trial_duration: 3000, choices: jsPsych.NO_KEYS, stimulus: function(){ var last_trial_correct = jsPsych.data.get().last(1).values()[0].correct; if(last_trial_correct){ return "<h1 style='color: green;'>Correct</h1>"; } else{ return "<h1 style='color: red;'>Incorrect</h1>" } }
             });
 
             console.log("NUMBER TRIES CORRECT: " + nonliving_prac_corr);
@@ -326,15 +340,15 @@
             trials.push(fixation_post);
 
             // 5. PROBE
-            if(control_prac_probe_words[prac_iter] == 0) { // VALID
+            if(control_prac_probe_words_list[prac_iter] == 0) { // VALID
                 trials.push({
                     stimulus: "<h1 style='text-transform: uppercase;'>" + control_prac_probe_words[prac_iter] + "</h1>", trial_duration: 10000, choices: [89, 78], data: { 'practice-list' : prac_iter+1, 'trial_desc' : 'Probe', 'probe_word' : control_prac_probe_words[prac_iter], 'probe_type' : 'Valid' }, on_finish: function(data){if(data.key_press == 89){data.correct = true; control_prac_corr++;}else if(data.key_press == null){data.correct = "TIMEOUT";}else{data.correct = false;}}
                 });
-            } else if (control_prac_probe_words[prac_iter] == 1) { // LURE
+            } else if (control_prac_probe_words_list[prac_iter] == 1) { // LURE
                 trials.push({
                     stimulus: "<h1 style='text-transform: uppercase;'>" + control_prac_probe_words[prac_iter] + "</h1>", trial_duration: 10000, choices: [89, 78], data: { 'practice-list' : prac_iter+1, 'trial_desc' : 'Probe', 'probe_word' : control_prac_probe_words[prac_iter], 'probe_type' : 'Lure' }, on_finish: function(data){if(data.key_press == 78){data.correct = true; control_prac_corr++;}else if(data.key_press == null){data.correct = "TIMEOUT";}else{data.correct = false;}}
                 });
-            } else if (control_prac_probe_words[prac_iter] == 2) { // CONTROL
+            } else if (control_prac_probe_words_list[prac_iter] == 2) { // CONTROL
                 trials.push({
                     stimulus: "<h1 style='text-transform: uppercase;'>" + control_prac_probe_words[prac_iter] + "</h1>", trial_duration: 10000, choices: [89, 78], data: { 'practice-list' : prac_iter+1, 'trial_desc' : 'Probe', 'probe_word' : control_prac_probe_words[prac_iter], 'probe_type' : 'Control' }, on_finish: function(data){if(data.key_press == 78){data.correct = true; control_prac_corr++;}else if(data.key_press == null){data.correct = "TIMEOUT";}else{data.correct = false;}}
                 });
@@ -342,11 +356,13 @@
 
             // 6. FEEDBACK
             trials.push({
-                type: 'html-keyboard-response', stimulus: function(){ var last_trial_correct = jsPsych.data.get().last(1).values()[0].correct; if(last_trial_correct){ return "<h1 style='color: green;'>Correct</h1>"; } else{ return "<h1 style='color: red;'>Incorrect</h1>" } }
+                type: 'html-keyboard-response', trial_duration: 3000, choices: jsPsych.NO_KEYS, stimulus: function(){ var last_trial_correct = jsPsych.data.get().last(1).values()[0].correct; if(last_trial_correct){ return "<h1 style='color: green;'>Correct</h1>"; } else{ return "<h1 style='color: red;'>Incorrect</h1>" } }
             });
 
             console.log("NUMBER TRIES CORRECT: " + control_prac_corr);
         }
+
+        trials.push(instructions_suppress_post_prac);
 
         // MAIN TASK
         for(var block_itr = 0; block_itr < BLOCKS; block_itr++) {
