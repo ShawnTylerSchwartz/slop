@@ -60,6 +60,7 @@
         const DEMO_NONLIVING = ["ball", "bath", "beer", "boat", "bowl", "camp", "coal", "coat", "cord", "dial", "disk", "drug", "farm", "film", "food", "fuel", "gift", "gold", "hill", "hole", "lake", "land", "loaf", "lock", "mast", "maze", "menu", "milk", "moon", "news", "path", "plug", "salt", "snow", "soil", "tank", "tool", "wall", "wine", "wood"];
         const BLOCK_LENGTH = 2; // Equal to 1 + number of desired trials per block (to account for final node)
         const BLOCKS = 1;
+        const PRAC_TRIALS = 5;
         
         var words_per_trial = CONTROL.length / (BLOCK_LENGTH - 1);
 
@@ -133,16 +134,11 @@
         }
         
         var living_prac_corr = 0;
-        var living_prac_num_tries = 0;
-        var living_prac_iter = 0;
-        // while(living_prac_corr < 3) {
-            // reset number of practice tries (iterator) to avoid out of bounds error
-            if(living_prac_iter == living_prac_cues.length) {
-                living_prac_iter = 0;
-            }
+        
+        for(var prac_iter = 0; prac_iter < PRAC_TRIALS; prac_iter++) {
             // 1. MEMORY SET (4500 ms)
             trials.push({ 
-                stimulus: "<table class='wordgrid'><col width='200px' /><col width='50px' /><col width='200px' /><tr><td><div class='black'>"+living_prac_cues[living_prac_iter][0]+"</div></td><td></td><td><div class='black'>"+nonliving_prac_cues[living_prac_iter][0]+"</div></td></tr><tr><td><div style='margin-bottom:80px;'>&nbsp;</div></td><td><div style='font-size:60px;'>+</div></td><td></td></tr><tr><td><div class='black'>"+nonliving_prac_cues[living_prac_iter][1]+"</div></td><td></td><td><div class='black'>"+living_prac_cues[living_prac_iter][1]+"</div></td></tr></table>", data: { 'animate_word_1' : living_prac_cues[living_prac_iter][0], 'animate_word_2' : living_prac_cues[living_prac_iter][1], 'inanimate_word_1' : nonliving_prac_cues[living_prac_iter][0], 'inanimate_word_2' : nonliving_prac_cues[living_prac_iter][1], 'practice-list' : living_prac_num_tries+1, 'trial_desc' : 'MemorySet' }, choices: jsPsych.NO_KEYS, trial_duration: 4500
+                stimulus: "<table class='wordgrid'><col width='200px' /><col width='50px' /><col width='200px' /><tr><td><div class='black'>"+living_prac_cues[prac_iter][0]+"</div></td><td></td><td><div class='black'>"+nonliving_prac_cues[prac_iter][0]+"</div></td></tr><tr><td><div style='margin-bottom:80px;'>&nbsp;</div></td><td><div style='font-size:60px;'>+</div></td><td></td></tr><tr><td><div class='black'>"+nonliving_prac_cues[prac_iter][1]+"</div></td><td></td><td><div class='black'>"+living_prac_cues[prac_iter][1]+"</div></td></tr></table>", data: { 'animate_word_1' : living_prac_cues[prac_iter][0], 'animate_word_2' : living_prac_cues[prac_iter][1], 'inanimate_word_1' : nonliving_prac_cues[prac_iter][0], 'inanimate_word_2' : nonliving_prac_cues[prac_iter][1], 'practice-list' : prac_iter+1, 'trial_desc' : 'MemorySet' }, choices: jsPsych.NO_KEYS, trial_duration: 4500
             });
 
             // 2. FIXATION (1000 ms)
@@ -150,7 +146,7 @@
 
             // 3. INSTRUCTION CUE (1000 ms)
             trials.push({
-                stimulus: '<h1>REMEMBER LIVING</h1>', data: { 'cue_type' : 'Remember', 'cue_value' : "Animate", 'practice-list' : living_prac_num_tries+1, 'trial_desc' : 'InstructionCue' }, choices: jsPsych.NO_KEYS, trial_duration: 1000
+                stimulus: '<h1>REMEMBER LIVING</h1>', data: { 'cue_type' : 'Remember', 'cue_value' : "Animate", 'practice-list' : prac_iter+1, 'trial_desc' : 'InstructionCue' }, choices: jsPsych.NO_KEYS, trial_duration: 1000
             });
 
             // 4. FIXATION (3000 ms)
@@ -161,16 +157,16 @@
             if(living_prac_probe_type == 0) { // VALID
                 var rnd_prac_word_idx = jsPsych.randomization.sampleWithoutReplacement([0,1], 1)[0];
                 trials.push({
-                    stimulus: "<h1 style='text-transform: uppercase;'>" + living_prac_cues[living_prac_iter][rnd_prac_word_idx] + "</h1>", trial_duration: 10000, choices: [89, 78], data: { 'list' : trial_counter, 'trial_desc' : 'Probe', 'probe_word' : living_prac_cues[living_prac_iter][rnd_prac_word_idx], 'probe_type' : 'Valid' }, on_finish: function(data){if(data.key_press == 89){data.correct = true; living_prac_corr++;}else if(data.key_press == null){data.correct = "TIMEOUT";}else{data.correct = false;} console.log("living_prac_corr: " + living_prac_corr);}
+                    stimulus: "<h1 style='text-transform: uppercase;'>" + living_prac_cues[prac_iter][rnd_prac_word_idx] + "</h1>", trial_duration: 10000, choices: [89, 78], data: { 'list' : trial_counter, 'trial_desc' : 'Probe', 'probe_word' : living_prac_cues[prac_iter][rnd_prac_word_idx], 'probe_type' : 'Valid' }, on_finish: function(data){if(data.key_press == 89){data.correct = true; living_prac_corr++;}else if(data.key_press == null){data.correct = "TIMEOUT";}else{data.correct = false;} console.log("living_prac_corr: " + living_prac_corr);}
                 });
             } else if (living_prac_probe_type == 1) { // LURE
                 var rnd_prac_word_idx = jsPsych.randomization.sampleWithoutReplacement([0,1], 1)[0];
                 trials.push({
-                    stimulus: "<h1 style='text-transform: uppercase;'>" + nonliving_prac_cues[living_prac_iter][rnd_prac_word_idx] + "</h1>", trial_duration: 10000, choices: [89, 78], data: { 'list' : trial_counter, 'trial_desc' : 'Probe', 'probe_word' : nonliving_prac_cues[living_prac_iter][rnd_prac_word_idx], 'probe_type' : 'Lure' }, on_finish: function(data){if(data.key_press == 78){data.correct = true; living_prac_corr++;}else if(data.key_press == null){data.correct = "TIMEOUT";}else{data.correct = false;} console.log("living_prac_corr: " + living_prac_corr);}
+                    stimulus: "<h1 style='text-transform: uppercase;'>" + nonliving_prac_cues[prac_iter][rnd_prac_word_idx] + "</h1>", trial_duration: 10000, choices: [89, 78], data: { 'list' : trial_counter, 'trial_desc' : 'Probe', 'probe_word' : nonliving_prac_cues[prac_iter][rnd_prac_word_idx], 'probe_type' : 'Lure' }, on_finish: function(data){if(data.key_press == 78){data.correct = true; living_prac_corr++;}else if(data.key_press == null){data.correct = "TIMEOUT";}else{data.correct = false;} console.log("living_prac_corr: " + living_prac_corr);}
                 });
             } else if (living_prac_probe_type == 2) { // CONTROL
                 trials.push({
-                    stimulus: "<h1 style='text-transform: uppercase;'>" + control_prac_cues[living_prac_iter] + "</h1>", trial_duration: 10000, choices: [89, 78], data: { 'list' : trial_counter, 'trial_desc' : 'Probe', 'probe_word' : control_prac_cues[living_prac_iter], 'probe_type' : 'Control' }, on_finish: function(data){if(data.key_press == 78){data.correct = true; living_prac_corr++;}else if(data.key_press == null){data.correct = "TIMEOUT";}else{data.correct = false;} console.log("living_prac_corr: " + living_prac_corr);}
+                    stimulus: "<h1 style='text-transform: uppercase;'>" + control_prac_cues[prac_iter] + "</h1>", trial_duration: 10000, choices: [89, 78], data: { 'list' : trial_counter, 'trial_desc' : 'Probe', 'probe_word' : control_prac_cues[prac_iter], 'probe_type' : 'Control' }, on_finish: function(data){if(data.key_press == 78){data.correct = true; living_prac_corr++;}else if(data.key_press == null){data.correct = "TIMEOUT";}else{data.correct = false;} console.log("living_prac_corr: " + living_prac_corr);}
                 });
             }
 
@@ -180,16 +176,179 @@
             });
 
             console.log("NUMBER TRIES CORRECT: " + living_prac_corr);
-            living_prac_num_tries++;
-            living_prac_iter++;
-        // } 
+        }
         
         // (2) NON-LIVING TRIALS
+        var living_prac_shuffled = jsPsych.randomization.shuffle(DEMO_LIVING);
+        var nonliving_prac_shuffled = jsPsych.randomization.shuffle(DEMO_NONLIVING);
+        var control_prac_shuffled = jsPsych.randomization.shuffle(CONTROL);
+        
+        var living_prac_cues = [];
+        var nonliving_prac_cues = [];
+        var control_prac_cues = control_prac_shuffled;
+        
+        while(living_prac_shuffled.length) {
+            living_prac_cues.push(living_prac_shuffled.splice(0,2));
+            nonliving_prac_cues.push(nonliving_prac_shuffled.splice(0,2))
+        }
+        
         var nonliving_prac_corr = 0;
         
-        // (3) BLUE/RED TRIALS
-        var color_prac_corr = 0;
+        for(var prac_iter = 0; prac_iter < PRAC_TRIALS; prac_iter++) {
+            // 1. MEMORY SET (4500 ms)
+            trials.push({ 
+                stimulus: "<table class='wordgrid'><col width='200px' /><col width='50px' /><col width='200px' /><tr><td><div class='black'>"+living_prac_cues[prac_iter][0]+"</div></td><td></td><td><div class='black'>"+nonliving_prac_cues[prac_iter][0]+"</div></td></tr><tr><td><div style='margin-bottom:80px;'>&nbsp;</div></td><td><div style='font-size:60px;'>+</div></td><td></td></tr><tr><td><div class='black'>"+nonliving_prac_cues[prac_iter][1]+"</div></td><td></td><td><div class='black'>"+living_prac_cues[prac_iter][1]+"</div></td></tr></table>", data: { 'animate_word_1' : living_prac_cues[prac_iter][0], 'animate_word_2' : living_prac_cues[prac_iter][1], 'inanimate_word_1' : nonliving_prac_cues[prac_iter][0], 'inanimate_word_2' : nonliving_prac_cues[prac_iter][1], 'practice-list' : prac_iter+1, 'trial_desc' : 'MemorySet' }, choices: jsPsych.NO_KEYS, trial_duration: 4500
+            });
 
+            // 2. FIXATION (1000 ms)
+            trials.push(fixation_pre);
+
+            // 3. INSTRUCTION CUE (1000 ms)
+            trials.push({
+                stimulus: '<h1>REMEMBER NONLIVING</h1>', data: { 'cue_type' : 'Remember', 'cue_value' : "Animate", 'practice-list' : prac_iter+1, 'trial_desc' : 'InstructionCue' }, choices: jsPsych.NO_KEYS, trial_duration: 1000
+            });
+
+            // 4. FIXATION (3000 ms)
+            trials.push(fixation_post);
+
+            // 5. PROBE
+            var nonliving_prac_probe_type = jsPsych.randomization.sampleWithoutReplacement([0,1,2], 1)[0];
+            if(nonliving_prac_probe_type == 0) { // VALID
+                var rnd_prac_word_idx = jsPsych.randomization.sampleWithoutReplacement([0,1], 1)[0];
+                trials.push({
+                    stimulus: "<h1 style='text-transform: uppercase;'>" + nonliving_prac_cues[prac_iter][rnd_prac_word_idx] + "</h1>", trial_duration: 10000, choices: [89, 78], data: { 'list' : trial_counter, 'trial_desc' : 'Probe', 'probe_word' : nonliving_prac_cues[prac_iter][rnd_prac_word_idx], 'probe_type' : 'Valid' }, on_finish: function(data){if(data.key_press == 89){data.correct = true; nonliving_prac_corr++;}else if(data.key_press == null){data.correct = "TIMEOUT";}else{data.correct = false;} console.log("nonliving_prac_corr: " + nonliving_prac_corr);}
+                });
+            } else if (nonliving_prac_probe_type == 1) { // LURE
+                var rnd_prac_word_idx = jsPsych.randomization.sampleWithoutReplacement([0,1], 1)[0];
+                trials.push({
+                    stimulus: "<h1 style='text-transform: uppercase;'>" + living_prac_cues[prac_iter][rnd_prac_word_idx] + "</h1>", trial_duration: 10000, choices: [89, 78], data: { 'list' : trial_counter, 'trial_desc' : 'Probe', 'probe_word' : living_prac_cues[prac_iter][rnd_prac_word_idx], 'probe_type' : 'Lure' }, on_finish: function(data){if(data.key_press == 78){data.correct = true; nonliving_prac_corr++;}else if(data.key_press == null){data.correct = "TIMEOUT";}else{data.correct = false;} console.log("nonliving_prac_corr: " + nonliving_prac_corr);}
+                });
+            } else if (nonliving_prac_probe_type == 2) { // CONTROL
+                trials.push({
+                    stimulus: "<h1 style='text-transform: uppercase;'>" + control_prac_cues[prac_iter] + "</h1>", trial_duration: 10000, choices: [89, 78], data: { 'list' : trial_counter, 'trial_desc' : 'Probe', 'probe_word' : control_prac_cues[prac_iter], 'probe_type' : 'Control' }, on_finish: function(data){if(data.key_press == 78){data.correct = true; nonliving_prac_corr++;}else if(data.key_press == null){data.correct = "TIMEOUT";}else{data.correct = false;} console.log("nonliving_prac_corr: " + nonliving_prac_corr);}
+                });
+            }
+
+            // 6. FEEDBACK
+            trials.push({
+                type: 'html-keyboard-response', stimulus: function(){ var last_trial_correct = jsPsych.data.get().last(1).values()[0].correct; if(last_trial_correct){ return "<h1 style='color: green;'>Correct</h1>"; } else{ return "<h1 style='color: red;'>Incorrect</h1>" } }
+            });
+
+            console.log("NUMBER TRIES CORRECT: " + nonliving_prac_corr);
+        }
+        
+        // (3) BLUE/RED TRIALS
+        var control_prac_shuffled = jsPsych.randomization.shuffle(CONTROL);
+        var control_prac_shuffled_COPY = [];
+        // make deep copy of control_prac_shuffled
+        for(var i = 0; i < control_prac_shuffled.length; i++) {
+            control_prac_shuffled_COPY.push(control_prac_shuffled[i]);
+        }
+        
+        var control_prac_cues = [];
+        while(control_prac_shuffled_COPY.length) {
+            control_prac_cues.push(control_prac_shuffled_COPY.splice(0,4))
+        }
+        
+        var control_prac_corr = 0;
+
+        var control_prac_cue_type = [];
+        for(var i = 0; i < PRAC_TRIALS; i++) {
+            control_prac_cue_type.push(jsPsych.randomization.sampleWithoutReplacement([0,1], 1)[0]);
+        }
+
+        var control_prac_probe_words = [];
+
+        var control_prac_probe_words_list = [];
+        for(var i = 0; i < PRAC_TRIALS; i++) {
+            control_prac_probe_words_list.push(jsPsych.randomization.sampleWithoutReplacement([0,2], 1)[0]);
+        }
+
+        for(var jj = 0; jj < control_prac_cues.length; jj++) {
+            if(control_prac_cue_type[jj] == 0) { // blue
+                if(control_prac_probe_words_list[jj] == 0) { // Valid Probe
+                    var pooled_valid_probe = control_prac_cues[jj][jsPsych.randomization.sampleWithoutReplacement([0,1], 1)[0]];
+                    control_prac_probe_words.push(pooled_valid_probe);
+                } else if(control_prac_probe_words_list[jj] == 1) { // Lure Probe
+                    var pooled_lure_probe = control_prac_cues[jj][jsPsych.randomization.sampleWithoutReplacement([2,3], 1)[0]];
+                    control_prac_probe_words.push(pooled_lure_probe);
+                } else if(control_prac_probe_words_list[jj] == 2) { // Control Probe
+                    var rnd_sampled_ctrl_word = jsPsych.randomization.sampleWithoutReplacement(control_prac_shuffled, 1)[0];
+                    if(control_prac_cues[jj].includes(rnd_sampled_ctrl_word)) {
+                        while(control_prac_cues[jj].includes(rnd_sampled_ctrl_word)) {
+                            rnd_sampled_ctrl_word = jsPsych.randomization.sampleWithoutReplacement(control_prac_shuffled, 1)[0];
+                            console.log("redrawing rnd_sampled_ctrl_word (BLUE)...");
+                        }
+                    }
+                    control_prac_probe_words.push(rnd_sampled_ctrl_word);
+                }
+            } else if(control_prac_cue_type[jj] == 1) { // red
+                if(control_prac_probe_words_list[jj] == 0) { // Valid Probe
+                    var pooled_valid_probe = control_prac_cues[jj][jsPsych.randomization.sampleWithoutReplacement([2,3], 1)[0]];
+                    control_prac_probe_words.push(pooled_valid_probe);
+                } else if(control_prac_probe_words_list[jj] == 1) { // Lure Probe
+                    var pooled_lure_probe = control_prac_cues[jj][jsPsych.randomization.sampleWithoutReplacement([0,1], 1)[0]];
+                    control_prac_probe_words.push(pooled_lure_probe);
+                } else if(control_prac_probe_words_list[jj] == 2) { // Control Probe
+                    var rnd_sampled_ctrl_word = jsPsych.randomization.sampleWithoutReplacement(control_prac_shuffled, 1)[0];
+                    if(control_prac_cues[jj].includes(rnd_sampled_ctrl_word)) {
+                        while(control_prac_cues[jj].includes(rnd_sampled_ctrl_word)) {
+                            rnd_sampled_ctrl_word = jsPsych.randomization.sampleWithoutReplacement(control_prac_shuffled, 1)[0];
+                            console.log("redrawing rnd_sampled_ctrl_word (RED)...");
+                        }
+                    }
+                    control_prac_probe_words.push(rnd_sampled_ctrl_word);
+                }
+            }
+        }
+
+        for(var prac_iter = 0; prac_iter < PRAC_TRIALS; prac_iter++) {
+            // 1. MEMORY SET (4500 ms)
+            trials.push({
+                stimulus: "<table class='wordgrid'><col width='200px' /><col width='50px' /><col width='200px' /><tr><td><div class='colbl'>"+control_prac_cues[prac_iter][0]+"</div></td><td></td><td><div class='colrd'>"+control_prac_cues[prac_iter][2]+"</div></td></tr><tr><td><div style='margin-bottom:80px;'>&nbsp;</div></td><td><div style='font-size:60px;'>+</div></td><td></td></tr><tr><td><div class='colrd'>"+control_prac_cues[prac_iter][3]+"</div></td><td></td><td><div class='colbl'>"+control_prac_cues[prac_iter][1]+"</div></td></tr></table>", data: { 'blue_word_1' : control_prac_cues[prac_iter][0], 'blue_word_2' : control_prac_cues[prac_iter][1], 'red_word_1' : control_prac_cues[prac_iter][2], 'red_word_2' : control_prac_cues[prac_iter][3], 'practice-list' : prac_iter+1, 'trial_desc' : 'MemorySet' }, choices: jsPsych.NO_KEYS, trial_duration: 4500
+            });
+
+            // 2. FIXATION (1000 ms)
+            trials.push(fixation_pre); 
+
+            // 3. INSTRUCTION CUE (1000 ms)
+            if(control_prac_cue_type[prac_iter] == 0) { // blue
+                trials.push({
+                    stimulus: '<h1>REMEMBER BLUE</h1>', data: { 'cue_type' : 'Remember', 'cue_value' : 'Blue', 'practice-list' : prac_iter+1, 'trial_desc' : 'InstructionCue' }, choices: jsPsych.NO_KEYS, trial_duration: 1000
+                });
+            } else if(control_prac_cue_type[prac_iter] == 1) { // red
+                trials.push({
+                    stimulus: '<h1>REMEMBER RED</h1>', data: { 'cue_type' : 'Remember', 'cue_value' : 'Red', 'practice-list' : prac_iter+1, 'trial_desc' : 'InstructionCue' }, choices: jsPsych.NO_KEYS, trial_duration: 1000
+                });
+            }
+
+            // 4. FIXATION (3000 ms)
+            trials.push(fixation_post);
+
+            // 5. PROBE
+            if(control_prac_probe_words[prac_iter] == 0) { // VALID
+                trials.push({
+                    stimulus: "<h1 style='text-transform: uppercase;'>" + control_prac_probe_words[prac_iter] + "</h1>", trial_duration: 10000, choices: [89, 78], data: { 'practice-list' : prac_iter+1, 'trial_desc' : 'Probe', 'probe_word' : control_prac_probe_words[prac_iter], 'probe_type' : 'Valid' }, on_finish: function(data){if(data.key_press == 89){data.correct = true; control_prac_corr++;}else if(data.key_press == null){data.correct = "TIMEOUT";}else{data.correct = false;}}
+                });
+            } else if (control_prac_probe_words[prac_iter] == 1) { // LURE
+                trials.push({
+                    stimulus: "<h1 style='text-transform: uppercase;'>" + control_prac_probe_words[prac_iter] + "</h1>", trial_duration: 10000, choices: [89, 78], data: { 'practice-list' : prac_iter+1, 'trial_desc' : 'Probe', 'probe_word' : control_prac_probe_words[prac_iter], 'probe_type' : 'Lure' }, on_finish: function(data){if(data.key_press == 78){data.correct = true; control_prac_corr++;}else if(data.key_press == null){data.correct = "TIMEOUT";}else{data.correct = false;}}
+                });
+            } else if (control_prac_probe_words[prac_iter] == 2) { // CONTROL
+                trials.push({
+                    stimulus: "<h1 style='text-transform: uppercase;'>" + control_prac_probe_words[prac_iter] + "</h1>", trial_duration: 10000, choices: [89, 78], data: { 'practice-list' : prac_iter+1, 'trial_desc' : 'Probe', 'probe_word' : control_prac_probe_words[prac_iter], 'probe_type' : 'Control' }, on_finish: function(data){if(data.key_press == 78){data.correct = true; control_prac_corr++;}else if(data.key_press == null){data.correct = "TIMEOUT";}else{data.correct = false;}}
+                });
+            }
+
+            // 6. FEEDBACK
+            trials.push({
+                type: 'html-keyboard-response', stimulus: function(){ var last_trial_correct = jsPsych.data.get().last(1).values()[0].correct; if(last_trial_correct){ return "<h1 style='color: green;'>Correct</h1>"; } else{ return "<h1 style='color: red;'>Incorrect</h1>" } }
+            });
+
+            console.log("NUMBER TRIES CORRECT: " + control_prac_corr);
+        }
+
+        // MAIN TASK
         for(var block_itr = 0; block_itr < BLOCKS; block_itr++) {
             console.log("Block: " + block_itr+1);
 
