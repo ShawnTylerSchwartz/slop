@@ -59,13 +59,13 @@
         const DEMO_LIVING = ["baby", "bear", "bird", "boar", "bush", "carp", "clam", "crab", "crow", "deer", "dove", "duck", "fawn", "fish", "foal", "frog", "gnat", "goat", "hare", "hawk", "lady", "lamb", "lion", "lynx", "mice", "mole", "moss", "moth", "mule", "newt", "pony", "puma", "seal", "slug", "swan", "toad", "tree", "wasp", "wolf", "worm"];
         const DEMO_NONLIVING = ["ball", "bath", "beer", "boat", "bowl", "camp", "coal", "coat", "cord", "dial", "disk", "drug", "farm", "film", "food", "fuel", "gift", "gold", "hill", "hole", "lake", "land", "loaf", "lock", "mast", "maze", "menu", "milk", "moon", "news", "path", "plug", "salt", "snow", "soil", "tank", "tool", "wall", "wine", "wood"];
         const BLOCK_LENGTH = 2; // Equal to 1 + number of desired trials per block (to account for final node)
-        const BLOCKS = 1;
+        const BLOCKS = 8;
         const PRAC_TRIALS = 5;
         
         var words_per_trial = CONTROL.length / (BLOCK_LENGTH - 1);
 
         var aid = jsPsych.data.getURLVariable('aid');
-        console.log('aid: ' + aid);
+        var cb_id = jsPsych.data.getURLVariable('cb'); // counter balance type (A or B)
 
         var subject_id = jsPsych.randomization.randomID(15); // generate a random subject ID
 
@@ -77,6 +77,20 @@
             type: 'fullscreen',
             fullscreen_mode: true
         });
+
+        var kill_exp = {
+            type: 'html-keyboard-response',
+            stimulus: '<div style="font-size:60px;">Invalid counter balanced condition type. <br /><br /> Press space to exit.</div>',
+            on_finish: function() {
+                jsPsych.endCurrentTimeline();
+            }
+        }
+
+        if (cb_id != "A" && cb_id != "B") { // kill experiment if invalid
+            console.log("Invalid counter balanced condition type!");
+            trials.push(kill_exp);
+            trials.push(exit_fullscreen);
+        }
 
         // TRIAL BLOCKS
         var instructions_suppress = {
@@ -371,10 +385,19 @@
         for(var block_itr = 0; block_itr < BLOCKS; block_itr++) {
             console.log("Block: " + block_itr+1);
 
-            var cb_block_type = "deep"; // deep or shallow processing
-            if(block_itr % 2 == 0) {
-                cb_block_type == "shallow";
+            var cb_block_type; // deep or shallow processing
+            if(cb_id == "A") {
+                cb_block_type = "deep"; 
+                if(block_itr % 2 == 0) {
+                    cb_block_type == "shallow";
+                }
+            } else if(cb_id == "B") {
+                cb_block_type = "shallow"; 
+                if(block_itr % 2 == 0) {
+                    cb_block_type == "deep";
+                }
             }
+            
             console.log(cb_block_type);
 
             // BUILD PROBE DISTRIBTUION
@@ -644,7 +667,8 @@
         jsPsych.data.addProperties({
             sessionID: subject_id,
             aID: aid,
-            conditionID: condition_assignment
+            conditionID: condition_assignment,
+            counterbalance_id: cb_id
         });
 
         var file_pattern_data = condition_assignment + "_" + subject_id + "_" + aid + "_data";
