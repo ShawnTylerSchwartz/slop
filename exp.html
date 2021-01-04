@@ -60,7 +60,7 @@
         const DEMO_NONLIVING = ["ball", "bath", "beer", "boat", "bowl", "camp", "coal", "coat", "cord", "dial", "disk", "drug", "farm", "film", "food", "fuel", "gift", "gold", "hill", "hole", "lake", "land", "loaf", "lock", "mast", "maze", "menu", "milk", "moon", "news", "path", "plug", "salt", "snow", "soil", "tank", "tool", "wall", "wine", "wood"];
         const BLOCK_LENGTH = 2; // Equal to 1 + number of desired trials per block (to account for final node)
         const BLOCKS = 8;
-        const PRAC_TRIALS = 5;
+        const PRAC_TRIALS = 1;
         
         var words_per_trial = CONTROL.length / (BLOCK_LENGTH - 1);
 
@@ -145,6 +145,16 @@
             trial_duration: 3000,
             data: {
                 'trial_desc' : 'Post-Fixation'
+            }
+        }
+
+        var quick_break = {
+            type: 'html-keyboard-response',
+            stimulus: '<p>You will now take a quick break before moving on to the next trial.</p><p>Click <strong>spacebar</strong> when you are ready to continue.</p>',
+            post_trial_gap: 2000,
+            allow_keys: 32,
+            data: {
+                'trial_desc' : 'Post-Trial Gap'
             }
         }
 
@@ -385,17 +395,26 @@
         for(var block_itr = 0; block_itr < BLOCKS; block_itr++) {
             console.log("Block: " + block_itr+1);
 
-            var cb_block_type; // deep or shallow processing
+            // deep or shallow processing
+            var cb_block_type;
             if(cb_id == "A") {
-                cb_block_type = "deep"; 
-                if(block_itr % 2 == 0) {
-                    cb_block_type == "shallow";
+                console.log("BLOCK ITR MOD: ");
+                console.log((block_itr+1) % 2);
+                if((block_itr+1) % 2 == 0) {
+                    cb_block_type = "shallow";
+                } else {
+                    cb_block_type = "deep";
                 }
+                console.log(cb_block_type);
             } else if(cb_id == "B") {
-                cb_block_type = "shallow"; 
-                if(block_itr % 2 == 0) {
-                    cb_block_type == "deep";
+                console.log("BLOCK ITR MOD: ");
+                console.log((block_itr+1) % 2);
+                if((block_itr+1) % 2 == 0) {
+                    cb_block_type = "deep";
+                } else {
+                    cb_block_type = "shallow"; 
                 }
+                console.log(cb_block_type);
             }
             
             console.log(cb_block_type);
@@ -636,6 +655,8 @@
                     trial_counter++;
                 }
             }
+
+            trials.push(quick_break);
 
         }
 
