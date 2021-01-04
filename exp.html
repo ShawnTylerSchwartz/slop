@@ -628,10 +628,11 @@
                 console.log(probe_words);
                 console.log(cues);
 
-                for(var i = 0; i < BLOCK_LENGTH-1; i+=2) {
+                var animate_itr = 0;
+                for(var i = 0; i < BLOCK_LENGTH-1; i++) {
                     // 1. MEMORY SET (4500 ms)
                     trials.push({ 
-                        stimulus: "<table class='wordgrid'><col width='200px' /><col width='50px' /><col width='200px' /><tr><td><div class='black'>"+cues[i][0]+"</div></td><td></td><td><div class='black'>"+cues[i+1][0]+"</div></td></tr><tr><td><div style='margin-bottom:80px;'>&nbsp;</div></td><td><div style='font-size:60px;'>+</div></td><td></td></tr><tr><td><div class='black'>"+cues[i+1][1]+"</div></td><td></td><td><div class='black'>"+cues[i][1]+"</div></td></tr></table>", data: { 'animate_word_1' : cues[i][0], 'animate_word_2' : cues[i][1], 'inanimate_word_1' : cues[i+1][0], 'inanimate_word_2' : cues[i+1][1], 'list' : trial_counter, 'trial_desc' : 'MemorySet' }, choices: jsPsych.NO_KEYS, trial_duration: 4500
+                        stimulus: "<table class='wordgrid'><col width='200px' /><col width='50px' /><col width='200px' /><tr><td><div class='black'>"+cues[animate_itr][0]+"</div></td><td></td><td><div class='black'>"+cues[animate_itr+1][0]+"</div></td></tr><tr><td><div style='margin-bottom:80px;'>&nbsp;</div></td><td><div style='font-size:60px;'>+</div></td><td></td></tr><tr><td><div class='black'>"+cues[animate_itr+1][1]+"</div></td><td></td><td><div class='black'>"+cues[animate_itr][1]+"</div></td></tr></table>", data: { 'animate_word_1' : cues[animate_itr][0], 'animate_word_2' : cues[animate_itr][1], 'inanimate_word_1' : cues[animate_itr+1][0], 'inanimate_word_2' : cues[animate_itr+1][1], 'list' : trial_counter, 'trial_desc' : 'MemorySet' }, choices: jsPsych.NO_KEYS, trial_duration: 4500
                     });
 
                     // 2. FIXATION (1000 ms)
@@ -667,6 +668,7 @@
                     }
 
                     trial_counter++;
+                    animate_itr+=2;
                 }
             } else if(cb_block_type == "shallow") {
                 for(var jj = 0; jj < cues.length; jj++) {
