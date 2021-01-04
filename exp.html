@@ -8,10 +8,13 @@
         <script src="jsPsych/plugins/jspsych-html-keyboard-response.js"></script>
         <script src="jsPsych/plugins/jspsych-instructions.js"></script>
         <script src="jsPsych/plugins/jspsych-fullscreen.js"></script>
+        <script src="jsPsych/plugins/jspsych-survey-text.js"></script>
+        <script src="jsPsych/plugins/jspsych-survey-html-form.js"></script>
+        <script src="jsPsych/plugins/jspsych-survey-multi-choice.js"></script>
         <link rel="stylesheet" href="jsPsych/css/jspsych.css">
         <style>
             img {
-            width: 300px;
+                width: 300px;
             }
 
             .wordgrid {
@@ -41,9 +44,85 @@
             }
 
             #instructionTable td {
-                text-align: center; 
-                /* vertical-align: middle; */
+                text-align: center;
             }
+
+            .dem {
+                margin-block-start: 0em;
+                margin-block-end: 0em;
+                text-align: left;
+                font-weight: 500;
+                font-size: 1.3em;
+                padding: .2em 0;
+                color: #069;
+            }
+
+            .shim {
+                padding-top: 4px;
+                padding-bottom: 4px;
+                font-style: italic;
+            }
+
+            .small {
+                font-size: .95em;
+            }
+
+            .dem-sec {
+                margin-top: 5px;
+                margin-bottom: 50px;
+            }
+
+            .radioButtons > label {
+                margin: 0em 1em 0em 1em;
+                display: block;
+                text-align: left;
+            }
+
+            .radioButtons > label:hover {
+                background-color: #069;
+                border-radius: 3px;
+                color: #fff;
+            }
+            
+            .radioButtons input {
+                margin: 0em .5em .3em .5em;
+            }
+            
+            .radioButtons input:focus {
+                outline: none;
+            } 
+
+            .consent {
+                width: 500px;
+            }
+            
+            .consent label {
+                width: 425px;
+                display: inline-block;
+            }
+
+            .consent textarea {
+                background:none repeat scroll 0% 0% #F2F2F2;
+                border:1px solid #CCC;
+                font-family:serif;
+                height:300px;
+                width: 100%;
+                overflow:auto;
+                padding:6px;
+                border-radius: 3px;
+                display: block;
+            }
+
+            .collectorInput {
+  padding: .3em .4em;
+  border-radius: 4px;
+  border: 1px solid #bfbfbf;
+}
+  .collectorInput:active, .collectorInput:hover, .collectorInput:focus {
+    border-color: #09c;
+    outline: none;
+    box-shadow: inset 1px 1px 4px 0px #C9C9C9;
+  }
         </style>
     </head>
 
@@ -59,8 +138,14 @@
         const DEMO_LIVING = ["baby", "bear", "bird", "boar", "bush", "carp", "clam", "crab", "crow", "deer", "dove", "duck", "fawn", "fish", "foal", "frog", "gnat", "goat", "hare", "hawk", "lady", "lamb", "lion", "lynx", "mice", "mole", "moss", "moth", "mule", "newt", "pony", "puma", "seal", "slug", "swan", "toad", "tree", "wasp", "wolf", "worm"];
         const DEMO_NONLIVING = ["ball", "bath", "beer", "boat", "bowl", "camp", "coal", "coat", "cord", "dial", "disk", "drug", "farm", "film", "food", "fuel", "gift", "gold", "hill", "hole", "lake", "land", "loaf", "lock", "mast", "maze", "menu", "milk", "moon", "news", "path", "plug", "salt", "snow", "soil", "tank", "tool", "wall", "wine", "wood"];
         const BLOCK_LENGTH = 2; // Equal to 1 + number of desired trials per block (to account for final node)
-        const BLOCKS = 8;
+        const BLOCKS = 1;
         const PRAC_TRIALS = 1;
+
+        const GENDER_OPTIONS = ["Male", "Female", "Other"];
+        const EDUCATION_OPTIONS = ["Some High School", "High School Graduate", "Some College, no degree", "Associates degree", "Bachelors degree", "Graduate degree (Masters, Doctorate, etc.)"];
+        const INCOME_OPTIONS = ["$0-$24,999", "$25,000-$49,999", "$50,000-$74,999", "$75,000-$99,999", "$100,000-$124,999", "$125,000-$149,999", "$150,000+"];
+        const ETHNICITY_OPTIONS = ["American Indian/Alaskan Native", "Asian/Pacific Islander", "Black", "White", "Other/unknown"];
+        const FLUENCY_OPTIONS = ["Yes", "No"];
         
         var words_per_trial = CONTROL.length / (BLOCK_LENGTH - 1);
 
@@ -93,6 +178,22 @@
         }
 
         // TRIAL BLOCKS
+
+        var demographics = {
+            type: 'survey-html-form',
+            preamble: '<h2 style="text-align: left; color: #069;">Basic Information</h2>',
+            html: '<section class="dem-sec radioButtons"><h3 class="dem">Gender</h3><label><input name="Gender" type="radio" value="Male" required/>Male</label><label><input name="Gender" type="radio" value="Female" required/>Female</label><label><input name="Gender" type="radio" value="Other" required/>Other</label></section>'+
+                  '<section class="dem-sec"><label><h3 class="dem">Age</h3><input name="Age" class="wide collectorInput" type="text" pattern="[0-9][0-9]" value="" autocomplete="off" required/></label></section>'+
+                  '<section class="dem-sec"><label><h3 class="dem">Education</h3><select name="Education" class="wide collectorInput" required><option value="" default selected>Select Level</option><option>Some High School</option><option>High School Graduate</option><option>Some College, no degree</option><option>Associates degree</option><option>Bachelors degree</option><option>Graduate degree (Masters, Doctorate, etc.)</option></select></label></section>'+
+                  '<section class="dem-sec"><label><h3 class="dem">What is your estimated household annual income?</h3><select name="Income" class="wide collectorInput" required><option value="" default selected>Select Level</option><option>$0-$24,999</option><option>$25,000-$49,999</option><option>$50,000-$74,999</option><option>$75,000-$99,999</option><option>$100,000-$124,999</option><option>$125,000-$149,999</option><option>$150,000+</option></select></label></section>'+
+                  '<section class="dem-sec"><label><h3 class="dem">Ethnicity</h3><select name="Race" required class="wide collectorInput"><option value="" default selected>Select one</option><option>American Indian/Alaskan Native</option><option>Asian/Pacific Islander</option><option>Black</option><option>White</option><option>Other/unknown</option></select></label></section>'+
+                  '<section class="dem-sec radioButtons"><h3 class="dem">Do you speak english fluently?</h3><label><input name="Fluent" type="radio" value="Yes" required/>Yes</label><label><input name="Fluent" type="radio" value="No" required/>No</label></section>'+
+                  '<section class="dem-sec"><h3 class="dem">At what age did you start learning English?</h3><input name="AgeEnglish" type="text" value="" autocomplete="off" class="wide collectorInput"/><div class="small shim">If English is your first language please enter 0.</div></section>'+
+                  '<section class="dem-sec"><label><h3 class="dem">What is your country of residence?</h3><input name="Country" type="text" value="" autocomplete="off" class="wide collectorInput"/></label></section>'+
+                  '<section class="dem-sec consent"><legend><h3 class="dem">Informed Consent</h3></legend><textarea readonly>CONSENT FORM GOES HERE>>></textarea><label><span class="shim">Check this box if you have read, understand, and agree to the Informed Consent above.</span><input type="checkbox" name="consent" required/></label></section>'  
+        }
+        trials.push(demographics);
+
         var instructions_suppress = {
             type: 'instructions',
             pages: [
