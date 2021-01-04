@@ -114,15 +114,16 @@
             }
 
             .collectorInput {
-  padding: .3em .4em;
-  border-radius: 4px;
-  border: 1px solid #bfbfbf;
-}
-  .collectorInput:active, .collectorInput:hover, .collectorInput:focus {
-    border-color: #09c;
-    outline: none;
-    box-shadow: inset 1px 1px 4px 0px #C9C9C9;
-  }
+                padding: .3em .4em;
+                border-radius: 4px;
+                border: 1px solid #bfbfbf;
+            }
+
+            .collectorInput:active, .collectorInput:hover, .collectorInput:focus {
+                border-color: #09c;
+                outline: none;
+                box-shadow: inset 1px 1px 4px 0px #C9C9C9;
+            }
         </style>
     </head>
 
@@ -137,16 +138,10 @@
         const CONTROL = ["lazy", "quiet", "bored", "bland", "cozy", "slow", "pity", "shy", "rusty", "weary", "part", "safe", "wise", "blase", "phase", "tidy", "bless", "paint", "watch", "dump", "waste", "moody", "obey", "odd", "dark", "green", "nice", "blind", "cook", "kind", "dream", "pinch", "black", "rigid", "fall", "tune", "heal", "dirty", "kick", "foul", "gripe", "cut", "blond", "bake", "hard", "charm", "loyal", "cold", "greet", "rough", "learn", "good", "wink", "hope", "cute", "proud", "bold", "dead", "lost", "lie", "brave", "burn", "rude", "noisy", "toxic", "slap", "happy", "annoy", "tense", "lucky", "drown", "quick", "brutal", "power", "mad", "alert", "panic", "fight", "fun", "win"];
         const DEMO_LIVING = ["baby", "bear", "bird", "boar", "bush", "carp", "clam", "crab", "crow", "deer", "dove", "duck", "fawn", "fish", "foal", "frog", "gnat", "goat", "hare", "hawk", "lady", "lamb", "lion", "lynx", "mice", "mole", "moss", "moth", "mule", "newt", "pony", "puma", "seal", "slug", "swan", "toad", "tree", "wasp", "wolf", "worm"];
         const DEMO_NONLIVING = ["ball", "bath", "beer", "boat", "bowl", "camp", "coal", "coat", "cord", "dial", "disk", "drug", "farm", "film", "food", "fuel", "gift", "gold", "hill", "hole", "lake", "land", "loaf", "lock", "mast", "maze", "menu", "milk", "moon", "news", "path", "plug", "salt", "snow", "soil", "tank", "tool", "wall", "wine", "wood"];
-        const BLOCK_LENGTH = 2; // Equal to 1 + number of desired trials per block (to account for final node)
-        const BLOCKS = 1;
+        const BLOCK_LENGTH = 3; // Equal to 1 + number of desired trials per block (to account for final node)
+        const BLOCKS = 4;
         const PRAC_TRIALS = 1;
 
-        const GENDER_OPTIONS = ["Male", "Female", "Other"];
-        const EDUCATION_OPTIONS = ["Some High School", "High School Graduate", "Some College, no degree", "Associates degree", "Bachelors degree", "Graduate degree (Masters, Doctorate, etc.)"];
-        const INCOME_OPTIONS = ["$0-$24,999", "$25,000-$49,999", "$50,000-$74,999", "$75,000-$99,999", "$100,000-$124,999", "$125,000-$149,999", "$150,000+"];
-        const ETHNICITY_OPTIONS = ["American Indian/Alaskan Native", "Asian/Pacific Islander", "Black", "White", "Other/unknown"];
-        const FLUENCY_OPTIONS = ["Yes", "No"];
-        
         var words_per_trial = CONTROL.length / (BLOCK_LENGTH - 1);
 
         var aid = jsPsych.data.getURLVariable('aid');
@@ -169,7 +164,7 @@
             on_finish: function() {
                 jsPsych.endCurrentTimeline();
             }
-        }
+        };
 
         if (cb_id != "A" && cb_id != "B") { // kill experiment if invalid
             console.log("Invalid counter balanced condition type!");
@@ -191,7 +186,7 @@
                   '<section class="dem-sec"><h3 class="dem">At what age did you start learning English?</h3><input name="AgeEnglish" type="text" value="" autocomplete="off" class="wide collectorInput"/><div class="small shim">If English is your first language please enter 0.</div></section>'+
                   '<section class="dem-sec"><label><h3 class="dem">What is your country of residence?</h3><input name="Country" type="text" value="" autocomplete="off" class="wide collectorInput"/></label></section>'+
                   '<section class="dem-sec consent"><legend><h3 class="dem">Informed Consent</h3></legend><textarea readonly>CONSENT FORM GOES HERE>>></textarea><label><span class="shim">Check this box if you have read, understand, and agree to the Informed Consent above.</span><input type="checkbox" name="consent" required/></label></section>'  
-        }
+        };
         trials.push(demographics);
 
         var instructions_suppress = {
@@ -213,7 +208,7 @@
             data: {
                 'trial_desc' : 'Instructions'
             }
-        }
+        };
         trials.push(instructions_suppress);
 
         var instructions_suppress_post_prac = {
@@ -227,7 +222,7 @@
             data: {
                 'trial_desc' : 'Instructions'
             }
-        }
+        };
 
         var fixation_pre = {
             type: 'html-keyboard-response',
@@ -237,7 +232,7 @@
             data: {
                 'trial_desc' : 'Pre-Fixation'
             }
-        }
+        };
 
         var fixation_post = {
             type: 'html-keyboard-response',
@@ -247,7 +242,7 @@
             data: {
                 'trial_desc' : 'Post-Fixation'
             }
-        }
+        };
 
         var quick_break = {
             type: 'html-keyboard-response',
@@ -257,7 +252,7 @@
             data: {
                 'trial_desc' : 'Post-Trial Gap'
             }
-        }
+        };
 
         // PRACTICE TRIALS
 
@@ -770,19 +765,19 @@
                 }
             },
             timeline: trials
-        }
+        };
 
         var after_block = {
             type: 'html-keyboard-response',
             stimulus: 'Thank you for participating. Please press <strong>spacebar</strong> to exit fullscreen mode and to end the experiment.',
             is_html: true
-        }
+        };
 
         // Force browser to exit fullscreen mode
         var exit_fullscreen = {
             type: 'fullscreen',
             fullscreen_mode: false
-        }
+        };
 
         var condition_assignment = "suppress";
 
