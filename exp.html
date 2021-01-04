@@ -753,8 +753,10 @@
                 }
             }
 
-            trials.push(quick_break);
-
+            if(block_itr != (BLOCKS-1)) {
+                trials.push(quick_break);
+            }
+            
         }
 
         var block = {
